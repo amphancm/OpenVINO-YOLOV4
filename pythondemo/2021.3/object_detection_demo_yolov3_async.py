@@ -50,7 +50,8 @@ def build_argparser():
                       help="Optional. Specify the target device to infer on; CPU, GPU, FPGA, HDDL or MYRIAD is"
                            " acceptable. The sample will look for a suitable plugin for device specified. "
                            "Default value is CPU", default="CPU", type=str)
-    args.add_argument("--labels", help="Optional. Labels mapping file", default=None, type=str)
+    args.add_argument("--labels", help="Optional. Labels mapping file", 
+                        default='coco.names', type=str)
     args.add_argument("-t", "--prob_threshold", help="Optional. Probability threshold for detections filtering",
                       default=0.5, type=float)
     args.add_argument("-iout", "--iou_threshold", help="Optional. Intersection over union threshold for overlapping "
@@ -396,9 +397,21 @@ def main():
                 obj['ymax'] = min(obj['ymax'], origin_im_size[0])
                 obj['xmin'] = max(obj['xmin'], 0)
                 obj['ymin'] = max(obj['ymin'], 0)
-                color = (min(obj['class_id'] * 12.5, 255),
+
+                color = (min(obj['class_id'] * 12.5, 255), # BGR
                          min(obj['class_id'] * 7, 255),
                          min(obj['class_id'] * 5, 255))
+
+                if obj['class_id'] == 0 :   # Person
+                    color = (255,0,255)     
+
+                if obj['class_id'] == 2 :   # Car
+                    color = (0,255,0) 
+
+                if obj['class_id'] == 7 :   # Truck
+                    color = (255,200,100)       
+
+                #print(obj['class_id'])
                 det_label = labels_map[obj['class_id']] if labels_map and len(labels_map) >= obj['class_id'] else \
                     str(obj['class_id'])
 
@@ -435,7 +448,7 @@ def main():
 
                 if key in {ord("q"), ord("Q"), 27}: # ESC key
                     break
-                if key == 9: # Tab key
+                if key == 9:                        # Tab key
                     prev_mode = mode.current
                     mode.next()
 
